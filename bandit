@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+. ./lib
+cache_pass bandit0 "bandit0" >/dev/null
+for i in {0..33}; do
+  [ -f "solutions/$i" ] && solve $i
+  set | egrep "^bandit$i"
+done

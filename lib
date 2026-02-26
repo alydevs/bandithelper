@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+BANDIT_CACHE=".bandit"
+[ -f "$BANDIT_CACHE" ] && . "$BANDIT_CACHE"
+trap 'set | grep -E "^bandit[0-9]" > "$BANDIT_CACHE"' EXIT
+
+function sshp {
+    user=$1
+    pass=$2
+    shift 2
+    if ! 2>/dev/null sshpass -p "$pass" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 2220 "$user@bandit.labs.overthewire.org" "$@"; then
+        # SSH failed — invalidate cache
+        rm -f "$BANDIT_CACHE"
+        return 1
+    fi
+}
+function cache_pass {
+    local k=$1 v=$2
+    eval "$k=\"$v\""
+}
+function solve {
+    local n=$1 prev="bandit$(($1-1))"
+    local prevpass; eval "prevpass=\$$prev"
+    local v; eval "v=\$bandit$n"
+    [ -z "$v" ] && v=$(sshp "$prev" "$prevpass" bash <"solutions/$n.sh")
+    cache_pass "bandit$n" "$v"
+}
