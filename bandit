@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 . ./lib
+[ -d "solutions" ] || mkdir solutions
+[ -f "solutions/1.sh" ] || cat >solutions/1.sh <<'EOF'
+grep 'password' readme | awk '{print $NF}'
+EOF
 cache_pass bandit0 "bandit0" >/dev/null
 for i in {0..33}; do
-  [ -f "solutions/$i" ] && solve $i
+  [ -f "solutions/$i.sh" ] && solve $i
   set | egrep "^bandit$i"
 done
