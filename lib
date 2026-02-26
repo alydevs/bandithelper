@@ -4,14 +4,12 @@ BANDIT_CACHE=".bandit"
 trap 'set | grep -E "^bandit[0-9]" > "$BANDIT_CACHE"' EXIT
 
 function sshp {
+    _ssh="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 2220"
     user=$1
     pass=$2
     shift 2
-    if ! 2>/dev/null sshpass -p "$pass" ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -p 2220 "$user@bandit.labs.overthewire.org" "$@"; then
-        # SSH failed — invalidate cache
-        echo mv "$BANDIT_CACHE" "$BANDIT_CACHE.bak" >&2
-        return 1
-    fi
+    [ "$pass" = "keyfile" ] && 2>/dev/null $_ssh -i key_$user "$user@bandit.labs.overthewire.org" "$@"
+    [ "$pass" != "keyfile" ] && 2>/dev/null sshpass -p "$pass" $_ssh "$user@bandit.labs.overthewire.org" "$@"
 }
 function cache_pass {
     local k=$1 v=$2

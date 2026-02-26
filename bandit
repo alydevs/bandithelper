@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env -S bash
 . ./lib
 [ -d "solutions" ] || mkdir solutions
 [ -f "solutions/1.sh" ] || cat >solutions/1.sh <<'EOF'
@@ -8,8 +8,10 @@ cache_pass bandit0 "bandit0" >/dev/null
 for i in {0..33}; do
   # files in solutions/ are executed on the server
   [ -f "solutions/$i.sh" ] && solve $i
-  # files in exceptions/ are workarounds for cases where the solution
+  # files in solutions/e/ are workarounds for cases where the solution
   # can't be solved in the sandbox on the server
-  [ -f "exceptions/$i.sh" ] && . exceptions/$i.sh
+  [ -f "solutions/e/$i.sh" ] && . solutions/e/$i.sh
   set | egrep "^bandit$i="
+  eval "_test=\$bandit$i"
+  [ -z "$_test" ] && break
 done
